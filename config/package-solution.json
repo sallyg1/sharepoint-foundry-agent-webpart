@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "dallas-permit-chat-client-side-solution",
+    "id": "531a58ec-bb85-45a8-8cb7-fb9308faae46",
+    "version": "1.0.0.2",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.24.1"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "dallas-permit-chat description"
+      },
+      "longDescription": {
+        "default": "dallas-permit-chat description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "dallas-permit-chat Feature",
+        "description": "The feature that activates elements of the dallas-permit-chat solution.",
+        "id": "236e4a3c-1a33-49c0-b80a-1a04db4c75b6",
+        "version": "1.0.0.0"
+      }
+    ],
+    "webApiPermissionRequests": [
+      {
+        "resource": "<YOUR_ENTRA_APP_REGISTRATION_NAME>",
+        "scope": "access_as_user"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/dallas-permit-chat.sppkg"
+  }
+}

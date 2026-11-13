@@ -1,0 +1,22 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "dallas-permit-chat",
+    "environment": "spo",
+    "packageManager": "npm",
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "react",
+    "componentName": "DallasPermitChat",
+    "componentDescription": "City of Dallas Permit Chat Web Part",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.23.5",
+    "sdksVersions": {},
+    "version": "1.24.1",
+    "libraryName": "dallas-permit-chat",
+    "libraryId": "531a58ec-bb85-45a8-8cb7-fb9308faae46",
+    "solutionShortDescription": "dallas-permit-chat description",
+    "skipFeatureDeployment": true
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "dallas-permit-chat-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/dallasPermitChat/DallasPermitChatWebPart.js",
+          "manifest": "./src/webparts/dallasPermitChat/DallasPermitChatWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "DallasPermitChatWebPartStrings": "lib/webparts/dallasPermitChat/loc/{locale}.js"
+  }
+}
