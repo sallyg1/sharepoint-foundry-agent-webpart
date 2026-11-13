@@ -1,29 +1,62 @@
 # SharePoint Online (SPFx) Web Part for Azure AI Foundry Agent
 
-A SharePoint Framework (SPFx v1.24) React client-side web part that integrates an **Azure AI Foundry Prompt Agent** into SharePoint Online pages.
-
-This architecture enables cross-cloud and cross-tenant deployments (such as **Microsoft 365 GCC Moderate to Azure Government** or multi-tenant commercial) using a zero-trust middle-tier authentication broker.
+A SharePoint Framework (SPFx v1.24) React client-side web part that surfaces an **Azure AI Foundry Prompt Agent** directly on SharePoint Online pages across **cross-tenant and cross-cloud sovereign boundaries**.
 
 ---
 
-## 🏛️ Architecture Overview
+## 🎯 Target Scenario: Cross-Tenant / Cross-Cloud (GCC & Azure Government)
+
+This solution addresses the common public sector / enterprise pattern where:
+- **SharePoint Online** lives in **Tenant A** (e.g. Microsoft 365 GCC Moderate, backed by commercial Microsoft Entra ID).
+- **Azure AI Foundry Agent** lives in **Tenant B** (e.g. Azure Government, backed by Microsoft Entra US Gov).
+
+### Why this pattern is needed
+Direct out-of-the-box publishing from Azure AI Foundry or Copilot Studio to SharePoint Online **cannot cross sovereign cloud or tenant identity boundaries** (commercial Entra vs Entra Gov). 
+
+To solve this without directory peering or B2B guest account management, this client-side web part pairs with a middle-tier **zero-trust authentication broker**:
+
+> 🔗 **Backend Broker Repository**:  
+> **[sallyg1/crosstenant-auth-bridge](https://github.com/sallyg1/crosstenant-auth-bridge)**  
+> *(Reference pattern for cross-tenant, cross-cloud access to Azure AI Foundry agents: validates an Entra token in code against public JWKS, and calls Foundry using a Managed Identity).*
+
+---
+
+## 🏛️ End-to-End Architecture
 
 ```text
-[SharePoint Online Page]
+[Tenant A: M365 GCC Moderate / Commercial]
        │
-       ▼ (SPFx React Web Part)
-[AadHttpClientFactory] ──> Acquires Entra Bearer Token for Tenant A API
+       ▼ (SharePoint Online Page)
+[SPFx React Web Part]
        │
-       ▼ (HTTPS POST with Bearer Token & CORS)
-[Azure Function Authentication Broker]
-       │   ├── Validates Tenant A JWT in C# code against public JWKS
-       │   └── Extracts caller identity (oid / name / email)
-       ▼ (Invokes via Tenant B Managed Identity)
+       ▼ (AadHttpClientFactory)
+[Tenant A Entra ID] ──> Issues Bearer Token for exposed API scope (access_as_user)
+       │
+       │   HTTPS POST with Bearer Token (CORS allowed for SharePoint origin)
+       ▼
+─────────────────────────────────────────────────────────────────────────────
+[Cloud / Tenant Boundary]
+─────────────────────────────────────────────────────────────────────────────
+       ▼
+[Tenant B: Azure Government / Commercial]
+[Azure Function Authentication Broker (sallyg1/crosstenant-auth-bridge)]
+       │
+       ├── 1. Validates Tenant A JWT in C# code using Tenant A's public JWKS
+       │      (No Easy Auth / No directory peering required)
+       ├── 2. Extracts caller identity claims (oid, upn, name)
+       │
+       ▼ 3. Calls Azure AI Foundry using Tenant B Managed Identity
 [Azure AI Foundry Project]
        │
        ▼
-[Foundry Prompt Agent with File Search & Tools]
+[Foundry Prompt Agent with File Search & Knowledge]
 ```
+
+---
+
+## 🔗 Related Repositories
+- **Front-end Web Part (This repo)**: [sharepoint-foundry-agent-webpart](https://github.com/sallyg1/sharepoint-foundry-agent-webpart)
+- **Back-end Auth Broker (Azure Function)**: [crosstenant-auth-bridge](https://github.com/sallyg1/crosstenant-auth-bridge)
 
 ---
 
