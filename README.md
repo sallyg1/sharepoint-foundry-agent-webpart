@@ -4,6 +4,18 @@ A SharePoint Framework (SPFx v1.24) React client-side web part that surfaces an 
 
 ---
 
+## 📖 Description & Overview
+
+This SPFx client-side web part delivers an integrated, enterprise-grade AI chat interface embedded directly into SharePoint Online modern pages. It is specifically designed to solve the sovereign boundary challenge where **SharePoint Online** resides in one tenant (e.g., **Microsoft 365 GCC Moderate**) and the **Azure AI Foundry Agent** resides in another tenant or sovereign cloud (e.g., **Azure Government**).
+
+### Key Highlights:
+- **Seamless Single Sign-On (SSO)**: Uses SharePoint's native `AadHttpClientFactory` and MSAL to acquire bearer tokens for the user without popups or secondary logins.
+- **Cross-Cloud Sovereign Boundary Support**: Works in tandem with a middle-tier C# token broker ([crosstenant-auth-bridge](https://github.com/sallyg1/crosstenant-auth-bridge)) that validates commercial/GCC tokens against public JWKS and queries Foundry in Azure Government via Managed Identity.
+- **Configurable via Web Part Property Pane**: Administrators or site owners can dynamically configure the Function App endpoint and exposed API App ID URI directly from SharePoint's page edit pane without recompiling.
+- **Preconfigured Prompt Starters**: Provides customizable quick-prompt chips to guide end users into common workflow inquiries.
+
+---
+
 ## 🎯 Target Scenario: Cross-Tenant / Cross-Cloud (GCC & Azure Government)
 
 This solution addresses the common public sector / enterprise pattern where:

@@ -15,10 +15,10 @@
     },
     "metadata": {
       "shortDescription": {
-        "default": "dallas-permit-chat description"
+        "default": "SPFx Web Part for Azure AI Foundry Agent across sovereign boundaries"
       },
       "longDescription": {
-        "default": "dallas-permit-chat description"
+        "default": "A SharePoint Framework React web part that surfaces an Azure AI Foundry Prompt Agent on SharePoint Online pages across cross-tenant and cross-cloud sovereign boundaries."
       },
       "screenshotPaths": [],
       "videoUrl": "",
