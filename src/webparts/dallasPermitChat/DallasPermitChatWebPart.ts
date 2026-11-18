@@ -6,7 +6,6 @@ import {
   PropertyPaneTextField
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
-import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 import * as strings from 'DallasPermitChatWebPartStrings';
 import DallasPermitChat from './components/DallasPermitChat';
@@ -19,8 +18,6 @@ export interface IDallasPermitChatWebPartProps {
 
 export default class DallasPermitChatWebPart extends BaseClientSideWebPart<IDallasPermitChatWebPartProps> {
 
-  private _isDarkTheme: boolean = false;
-  private _environmentMessage: string = '';
   private _root: Root | undefined;
 
   public render(): void {
@@ -39,59 +36,6 @@ export default class DallasPermitChatWebPart extends BaseClientSideWebPart<IDall
     }
 
     this._root.render(element);
-  }
-
-  protected onInit(): Promise<void> {
-    return this._getEnvironmentMessage().then(message => {
-      this._environmentMessage = message;
-    });
-  }
-
-
-
-  private _getEnvironmentMessage(): Promise<string> {
-    if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook
-      return this.context.sdks.microsoftTeams.teamsJs.app.getContext()
-        .then(context => {
-          let environmentMessage: string = '';
-          switch (context.app.host.name) {
-            case 'Office': // running in Office
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentOffice : strings.AppOfficeEnvironment;
-              break;
-            case 'Outlook': // running in Outlook
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentOutlook : strings.AppOutlookEnvironment;
-              break;
-            case 'Teams': // running in Teams
-            case 'TeamsModern':
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentTeams : strings.AppTeamsTabEnvironment;
-              break;
-            default:
-              environmentMessage = strings.UnknownEnvironment;
-          }
-
-          return environmentMessage;
-        });
-    }
-
-    return Promise.resolve(this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentSharePoint : strings.AppSharePointEnvironment);
-  }
-
-  protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
-    if (!currentTheme) {
-      return;
-    }
-
-    this._isDarkTheme = !!currentTheme.isInverted;
-    const {
-      semanticColors
-    } = currentTheme;
-
-    if (semanticColors) {
-      this.domElement.style.setProperty('--bodyText', semanticColors.bodyText || null);
-      this.domElement.style.setProperty('--link', semanticColors.link || null);
-      this.domElement.style.setProperty('--linkHovered', semanticColors.linkHovered || null);
-    }
-
   }
 
   protected onDispose(): void {
@@ -118,7 +62,19 @@ export default class DallasPermitChatWebPart extends BaseClientSideWebPart<IDall
                   label: 'Entra API App ID URI'
                 }),
                 PropertyPaneTextField('functionEndpoint', {
-                  label: 'Azure Function Endpoint'
+                  label: 'Azure Function Endpoint',
+                  onGetErrorMessage: (value: string): string => {
+                    const trimmed = (value || '').trim();
+                    if (!trimmed) {
+                      return '';
+                    }
+                    try {
+                      const url = new URL(trimmed);
+                      return url.protocol === 'https:' ? '' : 'Endpoint must start with https://';
+                    } catch {
+                      return 'Enter a valid https:// URL';
+                    }
+                  }
                 })
               ]
             }

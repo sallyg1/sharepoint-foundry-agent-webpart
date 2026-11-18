@@ -50,14 +50,31 @@ export default function DallasPermitChat(props: IDallasPermitChatProps): React.R
     setLoading(true);
 
     try {
-      // 1. Acquire Entra token for Tenant A API App (trim any accidental trailing whitespace)
+      // 1. Validate config before acquiring or sending Entra bearer tokens
       const targetApi = (props.apiAppIdUri || '').trim();
       const targetEndpoint = (props.functionEndpoint || '').trim();
+
+      if (!targetApi || targetApi.includes('<') || targetApi.includes('>')) {
+        throw new Error('Entra API App ID URI is not configured. Update the web part property pane.');
+      }
+
+      let parsedEndpoint: URL;
+      try {
+        parsedEndpoint = new URL(targetEndpoint);
+      } catch {
+        throw new Error('Azure Function Endpoint must be a valid https:// URL.');
+      }
+
+      if (parsedEndpoint.protocol !== 'https:' || targetEndpoint.includes('<') || targetEndpoint.includes('>')) {
+        throw new Error('Azure Function Endpoint must use https:// (refusing to send bearer token over non-HTTPS).');
+      }
+
+      // 2. Acquire Entra token for Tenant A API App
       const client: AadHttpClient = await props.httpClientFactory.getClient(targetApi);
 
-      // 2. Call Azure Function (auth broker)
+      // 3. Call Azure Function (auth broker)
       const response: HttpClientResponse = await client.post(
-        targetEndpoint,
+        parsedEndpoint.toString(),
         AadHttpClient.configurations.v1,
         {
           headers: {
@@ -71,8 +88,15 @@ export default function DallasPermitChat(props: IDallasPermitChatProps): React.R
       );
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status} (${response.statusText}): ${errorText}`);
+        const errorText = await response.text().catch(() => '');
+        console.error(`Permit service returned HTTP ${response.status} (${response.statusText})`, errorText);
+        if (response.status >= 500) {
+          throw new Error(`The permit assistant encountered a server error (HTTP ${response.status}). Please try again later or contact your administrator.`);
+        }
+        if (response.status === 401 || response.status === 403) {
+          throw new Error(`Authentication or authorization failed (HTTP ${response.status}).`);
+        }
+        throw new Error(`Request failed (HTTP ${response.status}).`);
       }
 
       interface IChatResponse {
